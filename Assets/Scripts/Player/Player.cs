@@ -1,6 +1,10 @@
-using System;
 using UnityEngine;
+using System;
+using System.Collections.Generic;
+using Codice.Client.Common.TreeGrouper;
+using NUnit.Framework;
 using UnityEngine.InputSystem;
+using System.Linq;
 
 public class Player : MonoBehaviour
 {
@@ -26,6 +30,11 @@ public class Player : MonoBehaviour
     PlayerInput playerInput;
     InputAction moveAction;
     InputAction lookAction;
+
+    private Node closestNode;
+    private Node targetNode;
+    private List<Node> allNodes;
+
 
     void Awake()
     {
@@ -88,4 +97,36 @@ public class Player : MonoBehaviour
         var gravity = Physics.gravity * mass * Time.deltaTime;
         velocity.y = controller.isGrounded ? -1f : velocity.y + gravity.y;
     }
+
+    private Node FindClosestNode()
+    {
+        Node closest = null;
+        float minDistance = float.MaxValue;
+
+        foreach (Node node in allNodes)
+        {
+            float distance = Vector3.Distance(transform.position, node.transform);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closest = node;
+            }
+        }
+
+        return closest;
+    }
+
+    public Node GetRandomNode()
+    {
+        Node randomNode = null;
+
+        do
+        {
+            randomNode = allNodes[UnityEngine.Random.Range(0, allNodes.Count)];
+        } while (randomNode == closestNode); // Ensure it's not the same as the start node
+
+        return randomNode;
+    }
+
+
 }
